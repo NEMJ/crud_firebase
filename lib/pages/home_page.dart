@@ -56,7 +56,6 @@ class _HomePageState extends State<HomePage> {
                       username: _usernameController.text,
                       age: _ageController.text
                     ));
-                  // _create();
                 },
                 child: Container(
                   width: 100,
@@ -81,20 +80,49 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+              const SizedBox(height: 10),
+              StreamBuilder<List<UserModel>>(
+                stream: FirestoreHelper.read(),
+                builder: (context, snapshot) {
+                  if(snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if(snapshot.hasError) {
+                    return const Center(child: Text('some error occured'),);
+                  }
+                  if(snapshot.hasData) {
+                    final userData = snapshot.data;
+                    return Expanded(
+                      child: ListView.builder(
+                        itemCount: userData!.length,
+                        itemBuilder: (context, index) {
+                          final singleUser = userData[index];
+                          return Container(
+                            margin: const EdgeInsets.symmetric(vertical: 5),
+                            child: ListTile(
+                              leading: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: const BoxDecoration(
+                                  color: Colors.deepPurple,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              title: Text("${singleUser.username}"),
+                              subtitle: Text("${singleUser.age}"),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }
+                  return const Center(child: CircularProgressIndicator());
+                }
+              ),
             ],
           ),
         ),
       ),
     );
   }
-
-  // Future _create() async {
-  //   final userCollection = FirebaseFirestore.instance.collection('users');
-  //   final docRef = userCollection.doc();
-
-  //   await docRef.set({
-  //     "username": _usernameController.text,
-  //     "age": _ageController.text
-  //   });
-  // }
 }
