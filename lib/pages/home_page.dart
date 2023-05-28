@@ -1,7 +1,7 @@
-import 'package:crud_firebase/data/models/remote_data_source/firestore_helper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../data/models/remote_data_source/firestore_helper.dart';
 import '../data/models/user_model.dart';
+import '../pages/edit_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -100,6 +100,24 @@ class _HomePageState extends State<HomePage> {
                           return Container(
                             margin: const EdgeInsets.symmetric(vertical: 5),
                             child: ListTile(
+                              onLongPress: () {
+                                showDialog(context: context, builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text('Delete'),
+                                    content: const Text('are you sure you want to delete'),
+                                    actions: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          FirestoreHelper.delete(singleUser).then((value) {
+                                            Navigator.pop(context);
+                                          });
+                                        },
+                                        child: const Text('Delete'),
+                                      ),
+                                    ]
+                                  );
+                                });
+                              },
                               leading: Container(
                                 width: 40,
                                 height: 40,
@@ -110,6 +128,22 @@ class _HomePageState extends State<HomePage> {
                               ),
                               title: Text("${singleUser.username}"),
                               subtitle: Text("${singleUser.age}"),
+                              trailing: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context, MaterialPageRoute(
+                                      builder: (context) => EditPage(
+                                        user: UserModel(
+                                          id: singleUser.id,
+                                          username: singleUser.username,
+                                          age: singleUser.age,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: const Icon(Icons.edit),
+                              ),
                             ),
                           );
                         },
